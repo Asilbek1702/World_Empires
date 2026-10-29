@@ -1,0 +1,8 @@
+{
+"format_version": 1,
+"buildings": [
+{"id": "farm", "name": "Farm", "cost": 150, "build_seasons": 3, "output_modifiers": {"food": 0.35}},
+{"id": "market", "name": "Market", "cost": 250, "build_seasons": 4, "output_modifiers": {"gold": 0.25}},
+{"id": "factory", "name": "Factory", "cost": 400, "build_seasons": 6, "output_modifiers": {"industry": 0.6}}
+]
+}

@@ -1,0 +1,21 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://main.gd" id="1_boot"]
+[ext_resource type="PackedScene" path="res://world/map/map_view.tscn" id="2_map"]
+[ext_resource type="PackedScene" path="res://ui/debug_hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://ui/country_select_screen.tscn" id="4_select"]
+[ext_resource type="PackedScene" path="res://ui/panels/economy_panel.tscn" id="5_eco"]
+[ext_resource type="PackedScene" path="res://ui/panels/city_panel.tscn" id="6_city"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_boot")
+
+[node name="MapView" parent="." instance=ExtResource("2_map")]
+
+[node name="DebugHud" parent="." instance=ExtResource("3_hud")]
+
+[node name="CountrySelectScreen" parent="." instance=ExtResource("4_select")]
+
+[node name="EconomyPanel" parent="." instance=ExtResource("5_eco")]
+
+[node name="CityPanel" parent="." instance=ExtResource("6_city")]
