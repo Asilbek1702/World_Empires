@@ -1,7 +1,7 @@
 # WORLD EMPIRES
 
 Глобальная пошаговая стратегия (1 ход = 1 сезон). Godot 4.7, GDScript, PC.
-Сейчас: вертикальный срез MVP. Готовы итерации 0–10 из `MVP Implementation Roadmap`.
+Сейчас: вертикальный срез MVP. Готовы итерации 0–11 из `MVP Implementation Roadmap`.
 
 ## Запуск
 
@@ -26,10 +26,11 @@
 | `world/` | WorldState, карта, регионы, страны, города, население |
 | `economy/` | ресурсы, бюджет, здания и строительство |
 | `ui/` | debug-HUD, выбор страны, панели экономики и города |
-| `data/` | карта, страны, города, здания (JSON) |
+| `data/` | карта, страны, города, здания, технологии (JSON) |
 | `tools/map_generator/` | Python-генераторы карты, стран и городов |
 | `tests/` | юнит-тесты и `run_all.sh` |
-| `technology/ military/ diplomacy/ ai/` | пока пусто (итерации 11–16) |
+| `technology/` | технологии и исследования (`ResearchSystem`, фаза WORLD_UPDATE) |
+| `military/ diplomacy/ ai/` | пока пусто (итерации 12–16) |
 
 ## Правила архитектуры
 

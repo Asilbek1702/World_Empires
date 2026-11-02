@@ -6,5 +6,6 @@
 - `country_select_screen.*` выбор страны игрока
 - `panels/economy_panel.*` казна и прогноз на сезон
 - `panels/city_panel.*` город выбранного региона и заказ зданий
+- `panels/research_panel.*` исследования: текущая технология и список
 
 UI только читает `WorldState` и отправляет команды через `CommandBus`.

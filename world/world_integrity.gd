@@ -7,6 +7,7 @@ extends RefCounted
 static func check(state: Node, allow_unowned: bool = false) -> Array[String]:
 	var problems := check_territory(state.countries, state.regions, allow_unowned)
 	problems.append_array(check_cities(state.cities, state.regions, BuildingCatalog.get_all()))
+	problems.append_array(check_technologies(state.countries, TechnologyCatalog.get_all()))
 	return problems
 
 
@@ -94,4 +95,43 @@ static func check_cities(cities: Dictionary, regions: Dictionary, catalog: Dicti
 		wanted.sort()
 		if listed != wanted:
 			problems.append("region %s: city list is out of sync with the cities" % rid)
+	return problems
+
+
+## Technologies: researched ones are known, unique and have their requirements researched;
+## the current research is known, not yet researched, startable, and its progress is below the cost;
+## progress without a current research must be 0. catalog: id -> Technology.
+static func check_technologies(countries: Dictionary, catalog: Dictionary) -> Array[String]:
+	var problems: Array[String] = []
+	for cid in countries:
+		var country: Country = countries[cid]
+		var known := {}
+		for tech_id in country.researched_technologies:
+			if known.has(tech_id):
+				problems.append("country %s has %s twice" % [cid, tech_id])
+			elif not catalog.has(tech_id):
+				problems.append("country %s knows unknown technology %s" % [cid, tech_id])
+			known[tech_id] = true
+		for tech_id in country.researched_technologies:
+			if not catalog.has(tech_id):
+				continue
+			for required in (catalog[tech_id] as Technology).requires:
+				if not known.has(required):
+					problems.append("country %s has %s without its requirement %s" % [cid, tech_id, required])
+		if country.research_progress < 0.0:
+			problems.append("country %s has negative research progress" % cid)
+		if country.current_research == "":
+			if country.research_progress != 0.0:
+				problems.append("country %s has research progress without a research" % cid)
+		elif not catalog.has(country.current_research):
+			problems.append("country %s researches unknown technology %s" % [cid, country.current_research])
+		elif known.has(country.current_research):
+			problems.append("country %s researches %s again" % [cid, country.current_research])
+		else:
+			var tech: Technology = catalog[country.current_research]
+			for required in tech.requires:
+				if not known.has(required):
+					problems.append("country %s researches %s without %s" % [cid, tech.id, required])
+			if country.research_progress >= float(tech.cost):
+				problems.append("country %s has finished %s but it is not in the list" % [cid, tech.id])
 	return problems

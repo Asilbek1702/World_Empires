@@ -1,0 +1,13 @@
+{
+"format_version": 1,
+"technologies": [
+{"id": "irrigation", "name": "Irrigation", "cost": 1200, "requires": [], "output_modifiers": {"food": 0.15}},
+{"id": "writing", "name": "Writing", "cost": 1500, "requires": [], "output_modifiers": {"science": 0.2}},
+{"id": "currency", "name": "Currency", "cost": 2000, "requires": [], "output_modifiers": {"gold": 0.1}},
+{"id": "iron_tools", "name": "Iron Tools", "cost": 3000, "requires": ["irrigation"], "output_modifiers": {"industry": 0.15}},
+{"id": "mathematics", "name": "Mathematics", "cost": 3500, "requires": ["writing"], "output_modifiers": {"science": 0.25}},
+{"id": "conscription", "name": "Conscription", "cost": 4000, "requires": ["iron_tools"], "output_modifiers": {"manpower": 0.25}},
+{"id": "crop_rotation", "name": "Crop Rotation", "cost": 4500, "requires": ["irrigation", "iron_tools"], "output_modifiers": {"food": 0.25}},
+{"id": "banking", "name": "Banking", "cost": 5000, "requires": ["currency", "mathematics"], "output_modifiers": {"gold": 0.2}}
+]
+}

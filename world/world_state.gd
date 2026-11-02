@@ -15,6 +15,10 @@ signal player_country_changed(country_id: String)
 signal city_changed(city_id: String)
 ## Emitted exactly once when a construction finishes.
 signal building_completed(city_id: String, building_id: String)
+## Emitted when a country's current research or its progress changes.
+signal research_changed(country_id: String)
+## Emitted exactly once when a research finishes.
+signal technology_researched(country_id: String, technology_id: String)
 
 var game_date: GameDate = GameDate.new()
 var rng_seed: int = 0
@@ -83,6 +87,9 @@ func from_dict(data: Dictionary) -> Error:
 		return ERR_INVALID_DATA
 	_rebuild_city_index(new_regions, new_cities)
 	if not WorldIntegrity.check_cities(new_cities, new_regions, BuildingCatalog.get_all()).is_empty():
+		return ERR_INVALID_DATA
+
+	if not WorldIntegrity.check_technologies(new_countries, TechnologyCatalog.get_all()).is_empty():
 		return ERR_INVALID_DATA
 
 	game_date = date

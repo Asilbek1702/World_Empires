@@ -56,11 +56,16 @@ static func country_report(country: Country, regions: Dictionary, cities: Dictio
 	var report := EconomyReport.new()
 	for type in ResourceTypes.Type.values():
 		report.output[type] = 0.0
+	var tech_bonuses := TechnologyModel.country_bonuses(country)
 	for region_id in country.regions:
 		if not regions.has(region_id):
 			continue
 		var region: Region = regions[region_id]
-		var bonuses := ProductionModel.region_bonuses(region, cities) if not cities.is_empty() else {}
+		var bonuses := tech_bonuses.duplicate()
+		if not cities.is_empty():
+			var local := ProductionModel.region_bonuses(region, cities)
+			for type in local:
+				bonuses[type] = float(bonuses.get(type, 0.0)) + float(local[type])
 		var produced := region_output(region, bonuses)
 		for type in produced:
 			report.output[type] += produced[type]

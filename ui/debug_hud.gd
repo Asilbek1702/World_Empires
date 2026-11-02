@@ -36,6 +36,7 @@ func _ready() -> void:
 	WorldState.state_replaced.connect(_on_state_replaced)
 	WorldState.player_country_changed.connect(_on_player_country_changed)
 	WorldState.building_completed.connect(_on_building_completed)
+	WorldState.technology_researched.connect(_on_technology_researched)
 	EventBus.subscribe(Events.TEST_PING, _on_test_ping)
 	EventBus.subscribe(Events.COMMAND_EXECUTED, _on_command_executed)
 	EventBus.subscribe(Events.COMMAND_REJECTED, _on_command_rejected)
@@ -70,6 +71,14 @@ func _on_building_completed(city_id: String, building_id: String) -> void:
 	var city: City = WorldState.cities[city_id]
 	var building := BuildingCatalog.get_building(building_id)
 	_set_status("%s finished in %s" % [building.name if building != null else building_id, city.name])
+
+
+func _on_technology_researched(country_id: String, technology_id: String) -> void:
+	var tech := TechnologyCatalog.get_technology(technology_id)
+	var country_name := country_id
+	if WorldState.countries.has(country_id):
+		country_name = (WorldState.countries[country_id] as Country).name
+	_set_status("%s researched %s" % [country_name, tech.name if tech != null else technology_id])
 
 
 func _on_trace_toggled(pressed: bool) -> void:

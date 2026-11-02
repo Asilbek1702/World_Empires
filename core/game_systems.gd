@@ -9,3 +9,4 @@ static func register_all(manager: Node) -> void:
 	manager.register_system(PopulationSystem.new())
 	manager.register_system(ProductionSystem.new())
 	manager.register_system(EconomySystem.new())
+	manager.register_system(ResearchSystem.new())

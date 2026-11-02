@@ -18,6 +18,8 @@ var regions: Array[String] = []  # sorted, derived
 var treasury: float = 0.0  # gold, always whole cents (EconomyModel.round_money)
 var technology_level: Dictionary = {}
 var researched_technologies: Array[String] = []
+var current_research: String = ""  # technology being researched, "" = none
+var research_progress: float = 0.0  # science collected for it, whole cents
 var stability: float = 50.0
 var power_score: float = 0.0
 
@@ -67,6 +69,8 @@ func to_dict() -> Dictionary:
 		"treasury": treasury,
 		"technology_level": JsonNumbers.canonical(technology_level),
 		"researched_technologies": researched_technologies.duplicate(),
+		"current_research": current_research,
+		"research_progress": research_progress,
 		"stability": stability,
 		"power_score": power_score,
 		"is_player_controlled": is_player_controlled,
@@ -98,6 +102,11 @@ static func from_dict(data: Variant) -> Country:
 	for tech in techs:
 		if not (tech is String):
 			return null
+	if not (d.get("current_research") is String):
+		return null
+	var progress: Variant = d.get("research_progress")
+	if not (typeof(progress) in [TYPE_INT, TYPE_FLOAT]) or not is_finite(progress) or progress < 0:
+		return null
 	if not (d.get("is_player_controlled") is bool):
 		return null
 
@@ -113,6 +122,8 @@ static func from_dict(data: Variant) -> Country:
 		country.researched_technologies.append(tech)
 	country.stability = float(d["stability"])
 	country.power_score = float(d["power_score"])
+	country.current_research = d["current_research"]
+	country.research_progress = EconomyModel.round_money(float(d["research_progress"]))
 	country.is_player_controlled = d["is_player_controlled"]
 	return country
 
