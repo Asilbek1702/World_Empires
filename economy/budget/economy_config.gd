@@ -20,6 +20,11 @@ const ADMIN_COST_PER_REGION := 50.0
 
 const STARTING_TREASURY := 500.0
 
+## Manpower is a stock: each season the country's manpower output is added to it,
+## recruiting takes from it (Iter 12).
+const STARTING_MANPOWER := 5000.0
+const MANPOWER_LIMIT := 1.0e7
+
 ## Safety ceiling so the treasury can never run away to infinity.
 ## 1e11 keeps every amount within the ~15 significant digits JSON can store exactly.
 const TREASURY_LIMIT := 1.0e11

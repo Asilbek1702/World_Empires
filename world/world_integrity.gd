@@ -8,6 +8,8 @@ static func check(state: Node, allow_unowned: bool = false) -> Array[String]:
 	var problems := check_territory(state.countries, state.regions, allow_unowned)
 	problems.append_array(check_cities(state.cities, state.regions, BuildingCatalog.get_all()))
 	problems.append_array(check_technologies(state.countries, TechnologyCatalog.get_all()))
+	problems.append_array(check_military(state.countries, state.regions, state.units,
+			state.armies, state.generals, UnitCatalog.get_all()))
 	return problems
 
 
@@ -134,4 +136,67 @@ static func check_technologies(countries: Dictionary, catalog: Dictionary) -> Ar
 					problems.append("country %s researches %s without %s" % [cid, tech.id, required])
 			if country.research_progress >= float(tech.cost):
 				problems.append("country %s has finished %s but it is not in the list" % [cid, tech.id])
+	return problems
+
+
+## Military (Iter 12): units are of a known type and stand in a real region of a real country;
+## an army is not empty, has at most MAX_UNITS units of its own country standing in its region,
+## and no unit is in two armies; a general and the army he leads point at each other.
+## unit_types: id -> UnitType.
+static func check_military(countries: Dictionary, regions: Dictionary, units: Dictionary,
+		armies: Dictionary, generals: Dictionary, unit_types: Dictionary) -> Array[String]:
+	var problems: Array[String] = []
+	for uid in units:
+		var unit: Unit = units[uid]
+		if unit.id != uid:
+			problems.append("key %s holds unit %s" % [uid, unit.id])
+		if not unit_types.has(unit.type_id):
+			problems.append("unit %s has unknown type %s" % [uid, unit.type_id])
+		if not countries.has(unit.country_id):
+			problems.append("unit %s belongs to unknown country %s" % [uid, unit.country_id])
+		if not regions.has(unit.region_id):
+			problems.append("unit %s stands in unknown region %s" % [uid, unit.region_id])
+	var in_army := {}  # unit id -> army id
+	for aid in armies:
+		var army: Army = armies[aid]
+		if army.id != aid:
+			problems.append("key %s holds army %s" % [aid, army.id])
+		if not countries.has(army.country_id):
+			problems.append("army %s belongs to unknown country %s" % [aid, army.country_id])
+		if not regions.has(army.region_id):
+			problems.append("army %s stands in unknown region %s" % [aid, army.region_id])
+		if army.units.is_empty() or army.units.size() > Army.MAX_UNITS:
+			problems.append("army %s has %d units (1..%d allowed)" % [aid, army.units.size(), Army.MAX_UNITS])
+		for uid in army.units:
+			if not units.has(uid):
+				problems.append("army %s lists unknown unit %s" % [aid, uid])
+				continue
+			if in_army.has(uid):
+				problems.append("unit %s is in armies %s and %s" % [uid, in_army[uid], aid])
+			in_army[uid] = aid
+			var member: Unit = units[uid]
+			if member.country_id != army.country_id:
+				problems.append("unit %s is not of the country of army %s" % [uid, aid])
+			if member.region_id != army.region_id:
+				problems.append("unit %s is not in the region of army %s" % [uid, aid])
+		if army.general_id != "":
+			if not generals.has(army.general_id):
+				problems.append("army %s has unknown general %s" % [aid, army.general_id])
+			else:
+				var leader: General = generals[army.general_id]
+				if leader.army_id != aid:
+					problems.append("army %s and general %s do not point at each other" % [aid, leader.id])
+				if leader.country_id != army.country_id:
+					problems.append("general %s leads an army of another country" % leader.id)
+	for gid in generals:
+		var general: General = generals[gid]
+		if general.id != gid:
+			problems.append("key %s holds general %s" % [gid, general.id])
+		if not countries.has(general.country_id):
+			problems.append("general %s belongs to unknown country %s" % [gid, general.country_id])
+		if general.army_id != "":
+			if not armies.has(general.army_id):
+				problems.append("general %s leads unknown army %s" % [gid, general.army_id])
+			elif (armies[general.army_id] as Army).general_id != gid:
+				problems.append("general %s and army %s do not point at each other" % [gid, general.army_id])
 	return problems

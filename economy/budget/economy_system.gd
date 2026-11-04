@@ -1,6 +1,6 @@
 class_name EconomySystem
 extends IGameSystem
-## Pays every country its net gold once per season (phase ECONOMY).
+## Pays every country its net gold and adds its manpower once per season (phase ECONOMY).
 ## Runs after POPULATION, so income uses this season's new population.
 ## Iter 9: gold income from population, administration expense. No trade, no buildings.
 
@@ -18,3 +18,5 @@ func on_season_tick(state) -> void:
 		var country: Country = state.countries[id]
 		var report := EconomyModel.country_report(country, state.regions, state.cities)
 		country.treasury = EconomyModel.next_treasury(country.treasury, report.net_gold())
+		country.manpower = EconomyModel.next_manpower(
+				country.manpower, report.get_output(ResourceTypes.Type.MANPOWER))

@@ -7,4 +7,5 @@
 - `countries/countries.json` 6 стран и их стартовые территории
 - `cities/cities.json` 61 город
 - `buildings/buildings.json` типы зданий: цена, срок, эффект
+- `units/units.json` типы юнитов: manpower, цена, атака, защита, скорость
 - `technologies/technologies.json` технологии: цена в науке, требования, эффект

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1_boot"]
 [ext_resource type="PackedScene" path="res://world/map/map_view.tscn" id="2_map"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://ui/panels/economy_panel.tscn" id="5_eco"]
 [ext_resource type="PackedScene" path="res://ui/panels/city_panel.tscn" id="6_city"]
 [ext_resource type="PackedScene" path="res://ui/panels/research_panel.tscn" id="7_research"]
+[ext_resource type="PackedScene" path="res://ui/panels/army_panel.tscn" id="8_army"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_boot")
@@ -22,3 +23,5 @@ script = ExtResource("1_boot")
 [node name="CityPanel" parent="." instance=ExtResource("6_city")]
 
 [node name="ResearchPanel" parent="." instance=ExtResource("7_research")]
+
+[node name="ArmyPanel" parent="." instance=ExtResource("8_army")]

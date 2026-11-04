@@ -48,7 +48,9 @@ func _refresh() -> void:
 	var report := EconomyModel.country_report(player, WorldState.regions, WorldState.cities)
 	var net := int(round(report.net_gold()))
 	_title.text = "Economy: %s" % player.name
-	_treasury.text = "Treasury: %s" % NumberFormat.thousands(int(round(player.treasury)))
+	_treasury.text = "Treasury: %s\nManpower: %s" % [
+		NumberFormat.thousands(int(round(player.treasury))),
+		NumberFormat.thousands(int(player.manpower))]
 	_income.text = "Income: %s / season" % NumberFormat.signed(int(round(report.gold_income())))
 	var lines: Array[String] = ["Expenses: %s / season" % NumberFormat.signed(-int(round(report.expenses())))]
 	for item in report.expense_items:

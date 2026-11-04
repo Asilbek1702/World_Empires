@@ -40,10 +40,12 @@ static func start_new_game(state: Node, p_seed: int, start_date: GameDate = null
 		(regions[rid] as Region).population = PopulationConfig.initial_population(regions[rid])
 	for cid in countries:
 		(countries[cid] as Country).treasury = EconomyConfig.STARTING_TREASURY
+		(countries[cid] as Country).manpower = EconomyConfig.STARTING_MANPOWER
 	if player_country_id != "":
 		(countries[player_country_id] as Country).is_player_controlled = true
 
 	if rng != null:
 		rng.set_seed(p_seed)
-	state.new_game(p_seed, start_date, regions, countries, cities)
+	state.new_game(p_seed, start_date, regions, countries, cities,
+			GeneralFactory.starting_generals(countries.keys()))
 	return OK

@@ -19,6 +19,8 @@ signal building_completed(city_id: String, building_id: String)
 signal research_changed(country_id: String)
 ## Emitted exactly once when a research finishes.
 signal technology_researched(country_id: String, technology_id: String)
+## Emitted when units, armies or generals change (recruiting, forming an army, naming a general).
+signal military_changed
 
 var game_date: GameDate = GameDate.new()
 var rng_seed: int = 0
@@ -28,13 +30,17 @@ var rng_state: int = 0
 var countries: Dictionary = {}  # CountryID -> Country
 var regions: Dictionary = {}  # RegionID -> Region
 var cities: Dictionary = {}  # CityID -> City
-var armies: Dictionary = {}  # ArmyID -> Army (Iter 12)
+var units: Dictionary = {}  # UnitID -> Unit
+var armies: Dictionary = {}  # ArmyID -> Army
+var generals: Dictionary = {}  # GeneralID -> General
+## Issues unit and army ids. Its counters are saved, so ids are never reused.
+var id_generator: IdGenerator = IdGenerator.new()
 
 
 ## p_regions / p_countries / p_cities: freshly loaded objects (see WorldBuilder). Empty = none.
 ## The caller guarantees they are consistent with each other (WorldIntegrity).
 func new_game(p_seed: int = 0, start_date: GameDate = null, p_regions: Dictionary = {},
-		p_countries: Dictionary = {}, p_cities: Dictionary = {}) -> void:
+		p_countries: Dictionary = {}, p_cities: Dictionary = {}, p_generals: Dictionary = {}) -> void:
 	game_date = start_date if start_date != null else GameDate.new()
 	rng_seed = p_seed
 	rng_state = 0
@@ -42,7 +48,12 @@ func new_game(p_seed: int = 0, start_date: GameDate = null, p_regions: Dictionar
 	regions = p_regions
 	cities = p_cities
 	_rebuild_city_index(regions, cities)
+	units = {}
 	armies = {}
+	generals = p_generals
+	id_generator = IdGenerator.new()
+	for general_id in generals:
+		id_generator.observe(general_id)
 	state_replaced.emit()
 
 
@@ -56,7 +67,10 @@ func to_dict() -> Dictionary:
 		"countries": _countries_to_dict(),
 		"regions": _regions_to_dict(),
 		"cities": _cities_to_dict(),
-		"armies": armies.duplicate(true),
+		"units": _entities_to_dict(units),
+		"armies": _entities_to_dict(armies),
+		"generals": _entities_to_dict(generals),
+		"id_counters": id_generator.to_dict(),
 	}
 
 
@@ -69,7 +83,7 @@ func from_dict(data: Dictionary) -> Error:
 	var state_text: Variant = data.get("rng_state")
 	if not _is_int64_text(seed_text) or not _is_int64_text(state_text):
 		return ERR_INVALID_DATA
-	for key in ["countries", "regions", "cities", "armies"]:
+	for key in ["countries", "regions", "cities", "units", "armies", "generals", "id_counters"]:
 		if not (data.get(key) is Dictionary):
 			return ERR_INVALID_DATA
 	var new_regions := {}
@@ -91,6 +105,19 @@ func from_dict(data: Dictionary) -> Error:
 
 	if not WorldIntegrity.check_technologies(new_countries, TechnologyCatalog.get_all()).is_empty():
 		return ERR_INVALID_DATA
+	var new_units := {}
+	var new_armies := {}
+	var new_generals := {}
+	if not _restore_military(data, new_units, new_armies, new_generals):
+		return ERR_INVALID_DATA
+	if not WorldIntegrity.check_military(new_countries, new_regions, new_units, new_armies,
+			new_generals, UnitCatalog.get_all()).is_empty():
+		return ERR_INVALID_DATA
+	var new_ids := IdGenerator.new()
+	new_ids.from_dict(data["id_counters"])
+	for entities in [new_units, new_armies, new_generals]:
+		for entity_id in entities:
+			new_ids.observe(entity_id)
 
 	game_date = date
 	rng_seed = (seed_text as String).to_int()
@@ -98,7 +125,10 @@ func from_dict(data: Dictionary) -> Error:
 	countries = new_countries
 	regions = new_regions
 	cities = new_cities
-	armies = (data["armies"] as Dictionary).duplicate(true)
+	units = new_units
+	armies = new_armies
+	generals = new_generals
+	id_generator = new_ids
 	state_replaced.emit()
 	return OK
 
@@ -224,3 +254,31 @@ static func _rebuild_city_index(region_dict: Dictionary, city_dict: Dictionary) 
 			(region as Region).cities.append(cid)
 	for rid in region_dict:
 		(region_dict[rid] as Region).cities.sort()
+
+
+static func _entities_to_dict(entities: Dictionary) -> Dictionary:
+	var out := {}
+	for id in entities:
+		out[id] = entities[id].to_dict()
+	return out
+
+
+## Fills the three targets only. Returns false if any entry is malformed or keyed wrongly.
+static func _restore_military(data: Dictionary, target_units: Dictionary,
+		target_armies: Dictionary, target_generals: Dictionary) -> bool:
+	for id in data["units"]:
+		var unit := Unit.from_dict(data["units"][id])
+		if unit == null or unit.id != id:
+			return false
+		target_units[id] = unit
+	for id in data["armies"]:
+		var army := Army.from_dict(data["armies"][id])
+		if army == null or army.id != id:
+			return false
+		target_armies[id] = army
+	for id in data["generals"]:
+		var general := General.from_dict(data["generals"][id])
+		if general == null or general.id != id:
+			return false
+		target_generals[id] = general
+	return true

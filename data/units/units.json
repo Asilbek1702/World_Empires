@@ -1,0 +1,9 @@
+{
+"format_version": 1,
+"units": [
+{"id": "infantry", "name": "Infantry", "manpower": 1000, "cost": 100, "attack": 10, "defense": 12, "speed": 3},
+{"id": "archers", "name": "Archers", "manpower": 800, "cost": 130, "attack": 13, "defense": 6, "speed": 3},
+{"id": "cavalry", "name": "Cavalry", "manpower": 500, "cost": 180, "attack": 15, "defense": 8, "speed": 6},
+{"id": "artillery", "name": "Artillery", "manpower": 300, "cost": 300, "attack": 24, "defense": 5, "speed": 2}
+]
+}

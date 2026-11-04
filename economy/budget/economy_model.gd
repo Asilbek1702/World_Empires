@@ -81,6 +81,14 @@ static func next_treasury(treasury: float, net: float) -> float:
 	return round_money(clampf(base + change, 0.0, EconomyConfig.TREASURY_LIMIT))
 
 
+## The manpower stock never goes below 0 or above MANPOWER_LIMIT, non-finite numbers are
+## ignored, and the result is in whole cents (same rule as the treasury).
+static func next_manpower(stock: float, change: float) -> float:
+	var base := stock if is_finite(stock) else 0.0
+	var delta := change if is_finite(change) else 0.0
+	return round_money(clampf(base + delta, 0.0, EconomyConfig.MANPOWER_LIMIT))
+
+
 ## Rounds to whole cents in a form that JSON stores exactly (see the note above).
 static func round_money(amount: float) -> float:
 	return roundf(amount * 100.0) / 100.0

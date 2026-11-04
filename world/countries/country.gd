@@ -16,6 +16,7 @@ var regions: Array[String] = []  # sorted, derived
 
 # Placeholders filled by later iterations (economy 9, technology 11).
 var treasury: float = 0.0  # gold, always whole cents (EconomyModel.round_money)
+var manpower: float = 0.0  # stock for recruiting, whole cents too
 var technology_level: Dictionary = {}
 var researched_technologies: Array[String] = []
 var current_research: String = ""  # technology being researched, "" = none
@@ -67,6 +68,7 @@ func to_dict() -> Dictionary:
 		"color": "#" + color.to_html(false),
 		"capital_region": capital_region,
 		"treasury": treasury,
+		"manpower": manpower,
 		"technology_level": JsonNumbers.canonical(technology_level),
 		"researched_technologies": researched_technologies.duplicate(),
 		"current_research": current_research,
@@ -102,6 +104,9 @@ static func from_dict(data: Variant) -> Country:
 	for tech in techs:
 		if not (tech is String):
 			return null
+	var manpower_value: Variant = d.get("manpower")
+	if not (typeof(manpower_value) in [TYPE_INT, TYPE_FLOAT]) or not is_finite(manpower_value) or manpower_value < 0:
+		return null
 	if not (d.get("current_research") is String):
 		return null
 	var progress: Variant = d.get("research_progress")
@@ -117,6 +122,7 @@ static func from_dict(data: Variant) -> Country:
 	country.color = Color.html(d["color"])
 	country.capital_region = d["capital_region"]
 	country.treasury = float(d["treasury"])
+	country.manpower = EconomyModel.round_money(float(manpower_value))
 	country.technology_level = JsonNumbers.canonical(d["technology_level"])
 	for tech in techs:
 		country.researched_technologies.append(tech)

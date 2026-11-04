@@ -1,0 +1,53 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/panels/army_panel.gd" id="1_army"]
+
+[node name="ArmyPanel" type="CanvasLayer"]
+layer = 5
+script = ExtResource("1_army")
+
+[node name="Panel" type="PanelContainer" parent="."]
+visible = false
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -760.0
+offset_top = 16.0
+offset_right = -396.0
+offset_bottom = 330.0
+grow_horizontal = 0
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="Box" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Panel/Margin/Box"]
+layout_mode = 2
+text = "Military"
+
+[node name="Info" type="Label" parent="Panel/Margin/Box"]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="Separator" type="HSeparator" parent="Panel/Margin/Box"]
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="Panel/Margin/Box"]
+custom_minimum_size = Vector2(330, 150)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Buttons" type="VBoxContainer" parent="Panel/Margin/Box/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Message" type="Label" parent="Panel/Margin/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.55, 0.55, 1)
+autowrap_mode = 3
